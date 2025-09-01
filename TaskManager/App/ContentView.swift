@@ -10,15 +10,12 @@ import Observation
 
 @MainActor
 struct ContentView: View {
-// Single shared repo for the app lifetime
-    private let repo = InMemoryTaskRepository(seed: Fixtures.makeSeed())
-
     @State private var listsVM: TaskListViewModel
     @State private var tasksVM: TaskViewModel
     @State private var isAddingList = false
 
     init() {
-        let repo = InMemoryTaskRepository(seed: Fixtures.makeSeed())
+        let repo = FileTaskRepository(seed: Fixtures.makeSeed())
         _listsVM = State(initialValue: TaskListViewModel(repo: repo))
         _tasksVM = State(initialValue: TaskViewModel(repo: repo))
     }
@@ -59,7 +56,10 @@ struct ContentView: View {
             .task { await listsVM.load() }
             .sheet(isPresented: $isAddingList) {
                 AddListSheet { name in
-                    Task { await listsVM.ensureList(named: name) }
+                    Task {
+                        await listsVM.ensureList(named: name)
+                        await listsVM.load()
+                    }
                 }
                 .presentationDetents([.height(200)])
             }
