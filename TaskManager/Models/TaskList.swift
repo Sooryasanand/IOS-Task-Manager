@@ -12,6 +12,7 @@ public struct TaskList: TaskListProtocol {
     public var tasks: [BaseTask]
 
     public init(name: String, tasks: [BaseTask] = []) {
-        self.name = name; self.tasks = tasks
+        self.name = name
+        self.tasks = tasks
     }
 }

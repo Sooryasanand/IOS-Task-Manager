@@ -17,30 +17,91 @@ struct AddTaskSheet: View {
 
     var onCreate: (String, String?, TaskCategory, TaskPriority, Date?) -> Void
 
+    private var trimmedTitle: String {
+        self.title.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    private var titleError: String? {
+        self.trimmedTitle.isEmpty ? "Title can’t be empty." : nil
+    }
+    private var dueError: String? {
+        if let d = dueAt, d < Date() { return "Due date can’t be in the past." }
+        return nil
+    }
+
+    private var hasErrors: Bool {
+        self.titleError != nil || self.dueError != nil
+    }
+
     var body: some View {
         NavigationStack {
             Form {
-                Section { TextField("Title", text: $title) }
-                Section("Details") { TextField("Optional detail", text: $detail) }
+                Section {
+                    TextField("Title", text: self.$title)
+                    if let err = titleError {
+                        Text(err).font(.footnote).foregroundStyle(.red)
+                    }
+                }
+
+                Section("Details") {
+                    TextField("Optional detail", text: self.$detail)
+                }
+
                 Section("Meta") {
-                    Picker("Category", selection: $category) {
-                        ForEach(TaskCategory.allCases, id: \.self) { Text($0.rawValue.capitalized).tag($0) }
+                    Picker("Category", selection: self.$category) {
+                        ForEach(TaskCategory.allCases, id: \.self) {
+                            Text($0.rawValue.capitalized).tag($0)
+                        }
                     }
-                    Picker("Priority", selection: $priority) {
-                        ForEach(TaskPriority.allCases, id: \.self) { Text($0.rawValue.capitalized).tag($0) }
+                    Picker("Priority", selection: self.$priority) {
+                        ForEach(TaskPriority.allCases, id: \.self) {
+                            Text($0.rawValue.capitalized).tag($0)
+                        }
                     }
-                    Toggle("Has due date", isOn: Binding(get: { dueAt != nil }, set: { has in dueAt = has ? Date().addingTimeInterval(3600) : nil }))
+
+                    Toggle(
+                        "Has due date",
+                        isOn: Binding(
+                            get: { self.dueAt != nil },
+                            set: { has in
+                                self.dueAt =
+                                    has ? Date().addingTimeInterval(3600) : nil
+                            }
+                        )
+                    )
+
                     if let due = dueAt {
-                        DatePicker("Due", selection: Binding(get: { due }, set: { dueAt = $0 }), displayedComponents: [.date, .hourAndMinute])
+                        DatePicker(
+                            "Due",
+                            selection: Binding(
+                                get: { due },
+                                set: { self.dueAt = $0 }
+                            ),
+                            in: Date()...,
+                            displayedComponents: [.date, .hourAndMinute]
+                        )
+                        if let err = dueError {
+                            Text(err).font(.footnote).foregroundStyle(.red)
+                        }
                     }
                 }
             }
             .navigationTitle("New Task")
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { self.dismiss() }
+                }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") { onCreate(title, detail.isEmpty ? nil : detail, category, priority, dueAt); dismiss() }
-                        .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    Button("Add") {
+                        self.onCreate(
+                            self.trimmedTitle,
+                            self.detail.isEmpty ? nil : self.detail,
+                            self.category,
+                            self.priority,
+                            self.dueAt
+                        )
+                        self.dismiss()
+                    }
+                    .disabled(self.hasErrors)
                 }
             }
         }

@@ -16,18 +16,14 @@ public enum TaskPriority: String, Codable, CaseIterable, Comparable, Sendable {
 
     private var weight: Int {
         switch self {
-        case .low: 0;
-        case .medium: 1;
-        case .high: 2;
+        case .low: 0
+        case .medium: 1
+        case .high: 2
         case .critical: 3
         }
     }
-    
+
     public static func < (lhs: TaskPriority, rhs: TaskPriority) -> Bool {
         lhs.weight < rhs.weight
     }
-}
-
-public enum TaskStatus: String, Codable, CaseIterable, Sendable {
-    case todo, inProgress, done
 }

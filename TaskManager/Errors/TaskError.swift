@@ -10,13 +10,11 @@ import Foundation
 public enum TaskError: Error, LocalizedError, Sendable {
     case emptyTitle
     case invalidDueDate
-    case alreadyCompleted
 
     public var errorDescription: String? {
         switch self {
-        case .emptyTitle: return "Title cannot be empty."
-        case .invalidDueDate: return "Due date cannot be earlier than creation date."
-        case .alreadyCompleted: return "Task is already completed."
+        case .emptyTitle: "Title cannot be empty."
+        case .invalidDueDate: "Due date cannot be earlier than creation date."
         }
     }
 }

@@ -10,11 +10,11 @@ import SwiftUI
 struct ErrorBanner: View {
     let message: String
     var body: some View {
-        Text(message)
-        .font(.footnote)
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity)
-        .padding(8)
-        .background(Color.red.opacity(0.9))
+        Text(self.message)
+            .font(.footnote)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(8)
+            .background(Color.red.opacity(0.9))
     }
 }
